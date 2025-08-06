@@ -13,47 +13,14 @@ jobs:
   build:
     # This job will run on ubuntu virtual machine
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
     steps:
+    
     # Setup Java environment in order to build the Android app.
     - uses: actions/checkout@v1
-
-    - name: Install strace
-      run: sudo apt-get update && sudo apt-get install -y strace
-
-    - name: Enable strace
-      uses: clonedSemicolon/setup-strace@v3
-
-    - name: Check which bash is used
-      run: which bash
-
-    - name: Run CI logic
-      run: echo "This should be traced"
-
-    # - name: Try manual strace
-      # run: |
-        # echo "Trying direct strace..."
-        # mkdir -p strace_logs
-        # strace -tt -f -o strace_logs/manual.log bash -c "echo traced manually"
-        # cat strace_logs/manual.log || echo "❌ strace failed (manual test)"
-
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
-
-    - name: List logs
-      run: |
-        echo "📝 Strace Logs:"
-        find strace_logs -type f
-
-    - name: Upload logs
-      uses: actions/upload-artifact@v4
-      with:
-        name: strace-logs
-        path: strace_logs/
+    - uses: clonedSemicolon/setup-strace@v11
     
     # Setup the flutter environment.
     - uses: subosito/flutter-action@v1
@@ -67,14 +34,11 @@ jobs:
     # Check for any formatting issues in the code.
     - run: flutter format --set-exit-if-changed .
 
-    - name: List strace logs
-      run: ls -l strace-logs || echo "No logs found"
-
-    - name: Upload strace artifacts
+    - name: Upload strace logs
       uses: actions/upload-artifact@v4
       with:
-        name: strace-logs
-        path: strace_logs/
+        name: strace_logs
+        path: strace_logs
     
 #     # Run widget tests for our flutter project.
 #     - run: flutter test
